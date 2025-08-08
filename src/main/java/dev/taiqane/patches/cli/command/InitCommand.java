@@ -4,45 +4,52 @@ import dev.taiqane.patches.configuration.PatchesConfiguration;
 import dev.taiqane.patches.internal.TempStorage;
 import dev.taiqane.patches.internal.git.GitService;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.concurrent.Callable;
 
+@Slf4j
 @Getter
-@Command(name = "init",
-        description = "Create a new patches file if not existing and downloads the base repository as specified in .patches.toml, but does not apply any patches."
-)
+@NoArgsConstructor
+@Command(name = "init", description = "Create a new patches file if not existing and downloads the base repository as specified in patches.toml, but does not apply any patches.")
 public class InitCommand implements Callable<Integer> {
     private final TempStorage storage = new TempStorage();
     private PatchesConfiguration configuration;
 
-    @Option(names = {"-F", "--config"},
-            description = "Path to patches config file. Defaults to .patches.toml in the current directory if not specificied")
-    private File configFilePath = new File(".patches.toml");
+    @Option(names = {"-F", "--config"}, description = "Path to patches config file. Defaults to patches.toml")
+    private File configFile = new File("patches.toml");
+
+    @Option(names = {"-U", "--repo-url"}, description = "URL of the Base Repo")
+    private String url = "no://op";
 
     @Override
     public Integer call() throws Exception {
-        PatchesConfiguration.existAndLoadOrCreateAndLoad(configFilePath, storage)
-                .ifPresent(patchesConfiguration -> configuration = patchesConfiguration);
+        PatchesConfiguration.existAndLoadOrCreateAndLoad(configFile, storage, url).ifPresent(patchesConfiguration -> configuration = patchesConfiguration);
 
         if (configuration == null) {
-            System.err.println("No valid patches configuration found?");
+            log.error("No valid patches configuration found?");
             return 42;
         }
 
         String baseRepoUrl = configuration.getBaseRepoUrl();
 
         if (baseRepoUrl.equals(PatchesConfiguration.EXAMPLE_URL)) {
-            if (storage.isFileInThisRunCreated()) {
-                System.out.println("Create new base .patches.toml file! Happy working :)");
+            if (this.getStorage().isFileInThisRunCreated()) {
+                log.info("Create new base patches.toml file! Happy working :)");
                 return 0;
             } else {
-                System.err.println("Example url " + PatchesConfiguration.EXAMPLE_URL + " cannot be used to download the base repository! Aborting!");
+                log.error("Example url {} cannot be used to download the base repository! Aborting!", PatchesConfiguration.EXAMPLE_URL);
                 return 42;
             }
         }
+
+        Files.createDirectories(Path.of(this.getConfiguration().getPatchesDirectoryPath()));
 
         GitService gitService = new GitService(this.getConfiguration(), this.getStorage());
         return gitService.downloadRepository();
