@@ -20,22 +20,22 @@ public class CleanCommand implements Callable<Integer> {
     private final TempStorage storage = new TempStorage();
     private PatchesConfiguration configuration;
 
-    @Option(names = {"-F", "--config"}, description = "Path to patches config file. Defaults to patches.toml")
-    private File configFile = new File("patches.toml");
+    @Option(names = {"-F", "--config"}, description = "Path to patches config file. Defaults to patches.properties")
+    private File configFile = new File("patches.properties");
 
     @Override
     public Integer call() throws Exception {
         // Only delete _workdir if patches config file is found
-        if (!configFile.exists()) {
-            log.error("No patches.toml file found! Will not clean work directory");
+        if (!this.getConfigFile().exists()) {
+            log.error("No patches config file found! Will not clean work directory");
             return 42;
         }
 
-        PatchesConfiguration.existAndLoadOrCreateAndLoad(configFile, storage, "no://op").ifPresent(patchesConfiguration -> configuration = patchesConfiguration);
+        PatchesConfiguration.load(this.getConfigFile()).ifPresent(patchesConfiguration -> configuration = patchesConfiguration);
 
         log.info("Deleting {} directory", this.getConfiguration().getGitRepoDirectory());
 
         FileService fileService = new FileService(this.getConfiguration());
-        return fileService.cleanWorkDir();
+        return fileService.cleanWorkDir().getCodeValue();
     }
 }

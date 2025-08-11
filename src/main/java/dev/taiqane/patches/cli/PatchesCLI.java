@@ -1,9 +1,7 @@
 package dev.taiqane.patches.cli;
 
-import dev.taiqane.patches.cli.command.ApplyCommand;
-import dev.taiqane.patches.cli.command.CleanCommand;
-import dev.taiqane.patches.cli.command.CreatePatchCommand;
-import dev.taiqane.patches.cli.command.InitCommand;
+import dev.taiqane.patches.cli.command.*;
+import dev.taiqane.patches.internal.error.ExitCodes;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Command;
@@ -20,7 +18,8 @@ import java.util.concurrent.Callable;
                 InitCommand.class,
                 ApplyCommand.class,
                 CleanCommand.class,
-                CreatePatchCommand.class
+                CreatePatchCommand.class,
+                ConfigCommand.class
         }
 )
 public class PatchesCLI implements Callable<Integer> {
@@ -28,6 +27,6 @@ public class PatchesCLI implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
         log.error("No command specified. Use 'patches --help' for usage information.");
-        return 0;
+        return ExitCodes.SUCCESSFUL.getCodeValue();
     }
 }

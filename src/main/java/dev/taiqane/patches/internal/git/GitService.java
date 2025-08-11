@@ -2,10 +2,12 @@ package dev.taiqane.patches.internal.git;
 
 import dev.taiqane.patches.configuration.PatchesConfiguration;
 import dev.taiqane.patches.internal.TempStorage;
+import dev.taiqane.patches.internal.error.ExitCodes;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
@@ -20,7 +22,6 @@ import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Slf4j
@@ -30,7 +31,7 @@ public class GitService {
     private final PatchesConfiguration configuration;
     private final TempStorage tempStorage;
 
-    public int downloadRepository() {
+    public ExitCodes downloadRepository() {
         try {
             log.info("Start to download the repository");
             Git.cloneRepository()
@@ -39,19 +40,26 @@ public class GitService {
                     .setDirectory(new File("_workdir"))
                     .call();
             log.info("Successfully downloaded the repository");
-            return 0;
+            return ExitCodes.SUCCESSFUL;
         } catch (GitAPIException e) {
             log.error("An error occurred at downloading the repository", e);
-            return 42;
+            return ExitCodes.INTERNAL_ERROR;
         }
     }
 
-    public int createGitPatch(String patchFileName)  {
+    public ExitCodes createGitPatch(String patchFileName) {
         File repoDir = new File(this.getConfiguration().getGitRepoDirectory());
 
         log.info("Starting to create a patch");
         try (Repository repository = Git.open(repoDir).getRepository()) {
             try (Git git = new Git(repository)) {
+
+                Status status = git.status().call();
+                if (!status.isClean()) {
+                    log.error("Your repository is not in a clean state. Cannot create a patch from an unclean state");
+                    return ExitCodes.USAGE_ERROR;
+                }
+
                 ObjectId oldCommitId = repository.resolve("HEAD~1");
                 ObjectId newCommitId = repository.resolve("HEAD");
 
@@ -60,7 +68,7 @@ public class GitService {
 
                 if (oldTreeIter == null || newTreeIter == null) {
                     log.error("AbstractTreeIterator is null but should not be!");
-                    return 42;
+                    return ExitCodes.INTERNAL_ERROR;
                 }
 
                 List<DiffEntry> diffs = git.diff()
@@ -71,7 +79,6 @@ public class GitService {
                 File patchFile = new File(this.getConfiguration().getPatchesDirectoryPath() + "/" + patchFileName + ".patch");
 
                 try (OutputStream fos = new FileOutputStream(patchFile, false); // false = überschreiben
-                     OutputStreamWriter writer = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
                      DiffFormatter formatter = new DiffFormatter(fos)) {
 
                     formatter.setRepository(repository);
@@ -84,11 +91,11 @@ public class GitService {
                 }
 
                 log.info("Patch successfully created and saved to disk! ({}.patch)", patchFileName);
-                return 0;
+                return ExitCodes.SUCCESSFUL;
             }
         } catch (GitAPIException | IOException e) {
             log.error("An error occurred at creating this patch", e);
-            return 42;
+            return ExitCodes.INTERNAL_ERROR;
         }
     }
 
@@ -113,15 +120,22 @@ public class GitService {
         return null;
     }
 
-    public int applyPatches() {
+    public ExitCodes applyPatches() {
         File[] patchFiles = new File(this.getConfiguration().getPatchesDirectoryPath()).listFiles((dir, name) -> name.toLowerCase().endsWith(".patch"));
 
         if (patchFiles == null || patchFiles.length == 0) {
             log.error("No patches to apply found");
-            return 42;
+            return ExitCodes.SUCCESSFUL;
         }
 
         try (Git git = Git.open(new File(this.getConfiguration().getGitRepoDirectory()))) {
+
+            Status status = git.status().call();
+            if (!status.isClean()) {
+                log.error("The repository is not in a clean state. To apply patches you need a clean repository!");
+                return ExitCodes.USAGE_ERROR;
+            }
+
             for (File file : patchFiles) {
                 log.info("Applying patch {}", file.getName());
                 try (FileInputStream fis = new FileInputStream(file)) {
@@ -131,13 +145,13 @@ public class GitService {
                     log.info("Applied patch {} successfully", file.getName());
                 } catch (GitAPIException | IOException e) {
                     log.error("An error occurred at applying patch {} ", file.getName(), e);
-                    return 42;
+                    return ExitCodes.INTERNAL_ERROR;
                 }
             }
-            return 0;
+            return ExitCodes.SUCCESSFUL;
         } catch (Exception e) {
             log.error("An error occurred at applying patch", e);
-            return 42;
+            return ExitCodes.INTERNAL_ERROR;
         }
     }
 }

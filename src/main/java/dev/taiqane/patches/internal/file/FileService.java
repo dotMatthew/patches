@@ -1,6 +1,7 @@
 package dev.taiqane.patches.internal.file;
 
 import dev.taiqane.patches.configuration.PatchesConfiguration;
+import dev.taiqane.patches.internal.error.ExitCodes;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +14,7 @@ import java.io.File;
 public class FileService {
     private final PatchesConfiguration configuration;
 
-    private int deleteDirectoryRecursively(File dir) {
+    private ExitCodes deleteDirectoryRecursively(File dir) {
         if (dir.exists()) {
             File[] files = dir.listFiles();
             if (files != null) {
@@ -33,19 +34,36 @@ public class FileService {
             if (!isDirDeleted) {
                 log.error("Unable to delete workdir directory: {}", dir.getName());
             }
-            return 0;
+            return ExitCodes.SUCCESSFUL;
         }
         log.error("{} does not exist", dir.getName());
-        return 42;
+        return ExitCodes.OPERATING_SYSTEM_ERROR;
     }
 
-    public int cleanWorkDir() {
+    public ExitCodes cleanWorkDir() {
         File file = new File(this.getConfiguration().getGitRepoDirectory());
         if (file.exists() && file.isDirectory()) {
             return this.deleteDirectoryRecursively(file);
         } else {
             log.error("Git repo dir specified in config is not a directory or does not exist?");
-            return 42;
+            return ExitCodes.OPERATING_SYSTEM_ERROR;
+        }
+    }
+
+    public ExitCodes renamePatchesDirectory(File oldDirectory, File newDirectory) {
+        if (!oldDirectory.exists() || newDirectory.exists()) {
+            log.error("Either the current patches directory does not exist or the new name of the directory is already in use! Aborting!");
+            return ExitCodes.USAGE_ERROR;
+        }
+
+        try {
+            if (oldDirectory.renameTo(newDirectory)) {
+                return ExitCodes.SUCCESSFUL;
+            }
+            return ExitCodes.INTERNAL_ERROR;
+        } catch (Exception e) {
+            log.error("An error occurred at renaming the patches directory");
+            return ExitCodes.INTERNAL_ERROR;
         }
     }
 }

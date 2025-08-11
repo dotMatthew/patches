@@ -2,6 +2,7 @@ package dev.taiqane.patches.cli.command;
 
 import dev.taiqane.patches.configuration.PatchesConfiguration;
 import dev.taiqane.patches.internal.TempStorage;
+import dev.taiqane.patches.internal.error.ExitCodes;
 import dev.taiqane.patches.internal.git.GitService;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,34 +21,35 @@ public class ApplyCommand implements Callable<Integer> {
     private final TempStorage storage = new TempStorage();
     private PatchesConfiguration configuration;
 
-    @Option(names = {"-F", "--config"}, description = "Path to patches config file. Defaults to patches.toml")
-    private File configFile = new File("patches.toml");
+    @Option(names = {"-F", "--config"}, description = "Path to patches config file. Defaults to patches.properties")
+    private File configFile = new File("patches.properties");
 
     @Override
     public Integer call() throws Exception {
         try {
-            if (!configFile.exists()) {
+            if (!this.getConfigFile().exists()) {
                 log.error("No patches config file found! Run patches init first!");
-                return 42;
+                return ExitCodes.USAGE_ERROR.getCodeValue();
             }
-            PatchesConfiguration.existAndLoadOrCreateAndLoad(configFile, storage, "no://op").ifPresent(patchesConfiguration -> configuration = patchesConfiguration);
+
+            PatchesConfiguration.load(this.getConfigFile()).ifPresent(patchesConfiguration -> configuration = patchesConfiguration);
             File patchesDirectoryPath = new File(this.getConfiguration().getPatchesDirectoryPath());
 
             if (!patchesDirectoryPath.exists() || !patchesDirectoryPath.isDirectory()) {
                 log.error("Patches directory path is not a directory!");
-                return 42;
+                return ExitCodes.USAGE_ERROR.getCodeValue();
             }
 
             if (!(new File(this.getConfiguration().getGitRepoDirectory()).exists())) {
                 log.error("No workdir found!");
-                return 42;
+                return ExitCodes.USAGE_ERROR.getCodeValue();
             }
 
             GitService gitService = new GitService(this.getConfiguration(), this.getStorage());
-            return gitService.applyPatches();
+            return gitService.applyPatches().getCodeValue();
         } catch (Exception e) {
             log.error("An error occurred at applying patches", e);
-            return 42;
+            return ExitCodes.INTERNAL_ERROR.getCodeValue();
         }
     }
 }
