@@ -1,0 +1,27 @@
+name: Bump version workflow
+on:
+  workflow_call:
+
+jobs:
+  bump-version:
+    if: ${{ github.actor != 'dependabot[bot]' &&
+      (github.ref_name == 'main' || startsWith(github.ref, 'refs/tags/v') || contains(github.event.head_commit.message, '[RELEASE]'))}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+      - name: Install node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 21
+      - name: Install jdk 17
+        uses: actions/setup-java@v4.7.1
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      - name: Install plugins
+        run: npm install @semantic-release/git @semantic-release/github @semantic-release/exec
+      - name: Bump version if necessary
+        run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}

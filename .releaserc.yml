@@ -1,0 +1,18 @@
+plugins:
+  - "@semantic-release/commit-analyzer"
+  - "@semantic-release/release-notes-generator"
+  - - "@semantic-release/exec"
+    - verifyReleaseCmd: 'mvn versions:set -DnewVersion="${nextRelease.version}" && echo "NEXT_VERSION=${nextRelease.version}" >> build.env'
+  - "@semantic-release/github"
+  - - "@semantic-release/git"
+    - assets:
+        - pom.xml
+      message: "chore(release): bump ${nextRelease.version}"
+
+branches:
+  - name: "main"
+    prerelease: false
+  - name: feature/*
+    prerelease: '${name.replace(/^feature\//g, "feat-")}'
+  - name: fix/*
+    prerelease: '${name.replace(/^fix\//g, "fix-")}'

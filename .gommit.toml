@@ -1,0 +1,27 @@
+[config]
+exclude-merge-commits=true
+
+[matchers]
+all="^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test){1}(\\([\\w\\-\\.]+\\))?(!)?: ([\\w ])+([\\s\\S]*)"
+
+[examples]
+a_simple_commit="""
+[feat|test|ref|fix|style](module) : A commit message
+"""
+
+an_extended_commit="""
+[feat|test|ref|fix|style](module) : A commit message
+
+* first line
+* second line
+* and so on...
+"""
+
+breaking_change="""
+[feat|test|ref|fix|style](module) : A commit message
+
+BREAKING CHANGE:
+* first line
+* second line
+* and so on...
+"""

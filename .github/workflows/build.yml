@@ -10,7 +10,12 @@ permissions:
   contents: write
 
 jobs:
+  check-commit-message:
+    uses: ./.github/workflows/check-commit-message.yml
+
   maven-build:
+    needs:
+      - check-commit-message
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the git repository
@@ -22,3 +27,9 @@ jobs:
           distribution: ${{ env.JAVA_DISTRO }}
       - name: Build project
         run: mvn -B clean package -DskipTests
+
+  bump-version:
+    needs:
+      - check-commit-message
+      - maven-build
+    uses: ./.github/workflows/bump-version.yml

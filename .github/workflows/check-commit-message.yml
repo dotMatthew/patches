@@ -1,0 +1,20 @@
+name: Check commit message
+on:
+  workflow_call:
+
+jobs:
+  check-commit-message:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout git repository
+        uses: actions/checkout@v4
+      - name: Clone gommit
+        run: |
+          wget -O /tmp/gommit.tar.gz https://github.com/antham/gommit/releases/download/v2.12.0/gommit_2.12.0_linux_amd64.tar.gz
+          tar xf /tmp/gommit.tar.gz -C /tmp
+          chmod 777 /tmp/gommit
+      - name: Check last commit message
+        env:
+          COMMIT_ID: ${{ github.sha }}
+        run: |
+          /tmp/gommit check commit $COMMIT_ID
