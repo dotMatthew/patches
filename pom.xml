@@ -59,7 +59,7 @@
                         <version>${native.maven.plugin.version}</version>
                         <extensions>true</extensions>
                         <configuration>
-                            <mainClass>dev.taiqane.patches.PatchesApp</mainClass>
+                            <mainClass><dev class="taiqane pat"></dev>ches.PatchesApp</mainClass>
                         </configuration>
                         <executions>
                             <execution>
@@ -121,4 +121,12 @@
             </plugin>
         </plugins>
     </build>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>Github Packages</name>
+            <url>https://maven.pkg.github.com/dotMatthew/patches</url>
+        </repository>
+    </distributionManagement>
 </project>
