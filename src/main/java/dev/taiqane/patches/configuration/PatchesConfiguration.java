@@ -28,6 +28,7 @@ public class PatchesConfiguration {
     private String baseRepoUrl;
     private String baseRepoRef;
     private String patchesDirectoryPath;
+    private boolean includeMetaData = false;
 
     public static Optional<PatchesConfiguration> load(File file) {
         try {
@@ -45,6 +46,7 @@ public class PatchesConfiguration {
             String baseRepoUrl = props.getProperty("baseRepoUrl");
             String baseRepoRef = props.getProperty("baseRepoRef");
             String patchesDirectoryPath = props.getProperty("patchesDirectoryPath", PATCHES_DIRECTORY_PATH_EXAMPLE);
+            boolean includeMetaData = Boolean.parseBoolean(props.getProperty("includeMetaData", "false"));
 
             if (baseRepoUrl == null || baseRepoRef == null || patchesDirectoryPath == null) {
                 log.info("Keys cannot be loaded from properties file!");
@@ -54,6 +56,7 @@ public class PatchesConfiguration {
             configuration.setBaseRepoUrl(baseRepoUrl);
             configuration.setBaseRepoRef(baseRepoRef);
             configuration.setPatchesDirectoryPath(patchesDirectoryPath);
+            configuration.setIncludeMetaData(includeMetaData);
 
             return Optional.of(configuration);
         } catch (Exception ex) {
@@ -63,7 +66,7 @@ public class PatchesConfiguration {
     }
 
     private static Optional<PatchesConfiguration> createExampleConfiguration(TempStorage storage, String url) {
-        PatchesConfiguration configuration = new PatchesConfiguration(url, "main", PATCHES_DIRECTORY_PATH_EXAMPLE);
+        PatchesConfiguration configuration = new PatchesConfiguration(url, "main", PATCHES_DIRECTORY_PATH_EXAMPLE, false);
         Properties props = loadFromConfig(configuration);
         try {
             props.store(new FileOutputStream("patches.properties"), null);
@@ -88,6 +91,7 @@ public class PatchesConfiguration {
         props.setProperty("baseRepoUrl", configuration.getBaseRepoUrl());
         props.setProperty("baseRepoRef", configuration.getBaseRepoRef());
         props.setProperty("patchesDirectoryPath", configuration.getPatchesDirectoryPath());
+        props.setProperty("includeMetaData", String.valueOf(configuration.isIncludeMetaData()));
 
         return props;
     }

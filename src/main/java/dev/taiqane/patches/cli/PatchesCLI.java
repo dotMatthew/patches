@@ -19,7 +19,9 @@ import java.util.concurrent.Callable;
                 ApplyCommand.class,
                 CleanCommand.class,
                 CreatePatchCommand.class,
-                ConfigCommand.class
+                ConfigCommand.class,
+                ResetCommand.class,
+                ConvertPatchesCommand.class
         }
 )
 public class PatchesCLI implements Callable<Integer> {
