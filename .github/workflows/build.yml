@@ -27,9 +27,13 @@ jobs:
           distribution: ${{ env.JAVA_DISTRO }}
       - name: Build project
         run: mvn -B clean package -DskipTests
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
   bump-version:
     needs:
       - check-commit-message
       - maven-build
     uses: ./.github/workflows/bump-version.yml
+    secrets:
+      PAT_TOKEN: ${{ secrets.PAT_TOKEN }}

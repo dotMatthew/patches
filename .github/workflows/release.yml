@@ -21,4 +21,4 @@ jobs:
       - name: Deploy maven project
         run: mvn -B deploy -DskipTests
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
