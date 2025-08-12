@@ -11,6 +11,9 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InvalidObjectException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.Callable;
@@ -50,7 +53,14 @@ public class InitCommand implements Callable<Integer> {
             }
         }
 
-        Files.createDirectories(Path.of(this.getConfiguration().getPatchesDirectoryPath()));
+        try {
+            Files.createDirectories(Path.of(this.getConfiguration().getPatchesDirectoryPath()));
+        } catch (FileAlreadyExistsException e) {
+            log.error("Patches directory exist but is not a directory!", e);
+            return ExitCodes.USAGE_ERROR.getCodeValue();
+        } catch (IOException | SecurityException e) {
+            log.error("An error occurred at creating the patches directory", e);
+        }
 
         GitService gitService = new GitService(this.getConfiguration(), this.getStorage());
         return gitService.downloadRepository().getCodeValue();

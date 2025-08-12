@@ -1,0 +1,95 @@
+[
+  {
+    "name" : "dev.taiqane.patches.cli.PatchesCLI",
+    "allDeclaredConstructors" : true,
+    "allPublicConstructors" : true,
+    "allDeclaredMethods" : true,
+    "allPublicMethods" : true
+  },
+  {
+    "name" : "dev.taiqane.patches.cli.command.ApplyCommand",
+    "allDeclaredConstructors" : true,
+    "allPublicConstructors" : true,
+    "allDeclaredMethods" : true,
+    "allPublicMethods" : true,
+    "fields" : [
+      { "name" : "configFile" }
+    ]
+  },
+  {
+    "name" : "dev.taiqane.patches.cli.command.CleanCommand",
+    "allDeclaredConstructors" : true,
+    "allPublicConstructors" : true,
+    "allDeclaredMethods" : true,
+    "allPublicMethods" : true,
+    "fields" : [
+      { "name" : "configFile" }
+    ]
+  },
+  {
+    "name" : "dev.taiqane.patches.cli.command.ConfigCommand",
+    "allDeclaredConstructors" : true,
+    "allPublicConstructors" : true,
+    "allDeclaredMethods" : true,
+    "allPublicMethods" : true,
+    "fields" : [
+      { "name" : "baseRepoRef" },
+      { "name" : "baseRepoUrl" },
+      { "name" : "configFile" },
+      { "name" : "patchesDirectoryPath" }
+    ]
+  },
+  {
+    "name" : "dev.taiqane.patches.cli.command.ConvertPatchesCommand",
+    "allDeclaredConstructors" : true,
+    "allPublicConstructors" : true,
+    "allDeclaredMethods" : true,
+    "allPublicMethods" : true,
+    "fields" : [
+      { "name" : "configFile" }
+    ]
+  },
+  {
+    "name" : "dev.taiqane.patches.cli.command.CreatePatchCommand",
+    "allDeclaredConstructors" : true,
+    "allPublicConstructors" : true,
+    "allDeclaredMethods" : true,
+    "allPublicMethods" : true,
+    "fields" : [
+      { "name" : "configFile" },
+      { "name" : "url" }
+    ]
+  },
+  {
+    "name" : "dev.taiqane.patches.cli.command.InitCommand",
+    "allDeclaredConstructors" : true,
+    "allPublicConstructors" : true,
+    "allDeclaredMethods" : true,
+    "allPublicMethods" : true,
+    "fields" : [
+      { "name" : "configFile" },
+      { "name" : "url" }
+    ]
+  },
+  {
+    "name" : "dev.taiqane.patches.cli.command.ResetCommand",
+    "allDeclaredConstructors" : true,
+    "allPublicConstructors" : true,
+    "allDeclaredMethods" : true,
+    "allPublicMethods" : true,
+    "fields" : [
+      { "name" : "configFile" }
+    ]
+  },
+  {
+    "name" : "picocli.CommandLine$AutoHelpMixin",
+    "allDeclaredConstructors" : true,
+    "allPublicConstructors" : true,
+    "allDeclaredMethods" : true,
+    "allPublicMethods" : true,
+    "fields" : [
+      { "name" : "helpRequested" },
+      { "name" : "versionRequested" }
+    ]
+  }
+]

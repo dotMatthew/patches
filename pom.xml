@@ -9,8 +9,8 @@
     <version>1.2.0</version>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <native.maven.plugin.version>0.11.0</native.maven.plugin.version>
     </properties>
@@ -24,7 +24,7 @@
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit</artifactId>
-            <version>7.3.0.202506031305-r</version>
+            <version>6.5.0.202303070854-r</version>
         </dependency>
         <dependency>
             <groupId>info.picocli</groupId>
@@ -55,6 +55,10 @@
                         <extensions>true</extensions>
                         <configuration>
                             <mainClass>dev.taiqane.patches.PatchesApp</mainClass>
+                            <imageName>patches</imageName>
+                            <metadataRepository>
+                                <enabled>true</enabled>
+                            </metadataRepository>
                         </configuration>
                         <executions>
                             <execution>
@@ -72,13 +76,17 @@
     </profiles>
 
     <build>
-        <finalName>patches-cli</finalName>
+        <finalName>patches</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
+                    <compilerArgs>
+                        <arg>-Aproject=${project.groupId}/${project.artifactId}</arg>
+                        <arg>-Apicocli.codegen.out.dir=${project.basedir}/src/main/resources</arg>
+                    </compilerArgs>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
                     <fork>true</fork>
