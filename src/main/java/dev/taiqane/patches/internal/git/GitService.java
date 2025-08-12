@@ -188,6 +188,11 @@ public class GitService {
     }
 
     public ExitCodes resetRepository() {
+        if (!new File(this.getConfiguration().getGitRepoDirectory()).exists()) {
+            log.error("No git directory found to reset!");
+            return ExitCodes.USAGE_ERROR;
+        }
+
         try (Git git = Git.open(new File(this.getConfiguration().getGitRepoDirectory()))) {
 
             git.clean()
