@@ -29,7 +29,7 @@
         <dependency>
             <groupId>info.picocli</groupId>
             <artifactId>picocli</artifactId>
-            <version>4.7.0</version>
+            <version>4.7.7</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -54,7 +54,7 @@
                         <version>${native.maven.plugin.version}</version>
                         <extensions>true</extensions>
                         <configuration>
-                            <mainClass><dev class="taiqane pat"></dev>ches.PatchesApp</mainClass>
+                            <mainClass>dev.taiqane.patches.PatchesApp</mainClass>
                         </configuration>
                         <executions>
                             <execution>
@@ -87,6 +87,11 @@
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
                             <version>1.18.38</version>
+                        </path>
+                        <path>
+                            <groupId>info.picocli</groupId>
+                            <artifactId>picocli-codegen</artifactId>
+                            <version>4.7.7</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
