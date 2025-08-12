@@ -3,7 +3,6 @@ plugins:
   - "@semantic-release/release-notes-generator"
   - - "@semantic-release/exec"
     - prepareCmd: |
-        set -euxo pipefail
         mvn -B versions:set -DnewVersion=${nextRelease.version}
         echo "NEXT_VERSION=${nextRelease.version}" >> build.env
         
